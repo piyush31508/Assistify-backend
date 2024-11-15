@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import connectDb from "./database/db.js";
 import UserRoutes from "./routes/userRoutes.js"
 import ChatRoutes from "./routes/chatRoutes.js"
-import path from 'path';
 
 const app = express();
 
@@ -14,7 +13,6 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 dotenv.config();
-app.use(express.static(path.resolve(__dirname, 'build')));
 
 //routes
 app.use('/user', UserRoutes);
