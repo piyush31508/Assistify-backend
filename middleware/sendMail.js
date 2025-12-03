@@ -1,69 +1,45 @@
-import { createTransport } from "nodemailer"
+// middleware/sendMail.js
+import axios from "axios";
+
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "piyushwork2003@gmail.com";
+
+if (!BREVO_API_KEY) {
+  console.warn("Warning: BREVO_API_KEY is not set. Email sending will fail.");
+}
 
 const sendMail = async (email, subject, otp) => {
-    const transport = createTransport({
-        host:"smtp.gmail.com",
-        port: 465,
-        auth:{
-            user: process.env.Gmail,
-            pass: process.env.Password
-        }
-    }
-    )
-    
-const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: red;
-        }
-        p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-        .otp {
-            font-size: 36px;
-            color: #7b68ee; /* Purple text */
-            margin-bottom: 30px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>OTP Verification</h1>
-        <p>Hello ${email} your (One-Time Password) for your account verification is.</p>
-        <p class="otp">${otp}</p> 
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+      <h1 style="color: red;">OTP Verification</h1>
+      <p>Hello ${email}, your One-Time Password for verification is:</p>
+      <p style="font-size: 32px; font-weight: bold; color: #7b68ee;">${otp}</p>
     </div>
-</body>
-</html>
-`;
+  `;
 
-await transport.sendMail({
-    from: process.env.Gmail,
-    to: email,
-    subject: subject,
-    html
-});
-}
+  try {
+    const resp = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: { email: SENDER_EMAIL },
+        to: [{ email }],
+        subject,
+        htmlContent: html,
+      },
+      {
+        headers: {
+          "api-key": BREVO_API_KEY,
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        timeout: 15000,
+      }
+    );
+    return resp.data;
+  } catch (err) {
+    console.error("Brevo Email Error:", err.response?.data || err.message);
+    throw new Error("Failed to send OTP email");
+  }
+};
 
 export default sendMail;
