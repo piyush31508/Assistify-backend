@@ -133,7 +133,13 @@ export const addConversation = async (req, res) => {
             break;
           }
         } catch (err) {
-          console.log("❌ Model failed:", model);
+          console.log(
+  "❌ Model failed:",
+  model,
+  err.response?.status,
+  err.response?.data || err.message
+);
+
           lastErr = err;
         }
       }
