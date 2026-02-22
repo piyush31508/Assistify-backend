@@ -91,9 +91,12 @@ export const addConversation = async (req, res) => {
       if (!OPENROUTER_API_KEY)
         return res.status(500).json({ message: "OpenRouter key missing" });
 
+      // Updated with working free models as of February 2025
       const models = [
-        "meta-llama/llama-3.3-70b-instruct:free", 
-        "deepseek/deepseek-r1t2-chimera", 
+        "google/gemini-2.0-flash-exp:free",
+        "meta-llama/llama-3.2-3b-instruct:free",
+        "microsoft/phi-3-mini-128k-instruct:free",
+        "qwen/qwen-2-7b-instruct:free"
       ];
 
       let aiText = null;
@@ -134,11 +137,11 @@ export const addConversation = async (req, res) => {
           }
         } catch (err) {
           console.log(
-  "❌ Model failed:",
-  model,
-  err.response?.status,
-  err.response?.data || err.message
-);
+            "❌ Model failed:",
+            model,
+            err.response?.status,
+            err.response?.data || err.message
+          );
 
           lastErr = err;
         }
