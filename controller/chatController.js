@@ -91,12 +91,13 @@ export const addConversation = async (req, res) => {
       if (!OPENROUTER_API_KEY)
         return res.status(500).json({ message: "OpenRouter key missing" });
 
-      // Updated with working free models as of February 2025
+      // Strategy: Use openrouter/free router first (auto-selects best available free model)
+      // If that fails, fallback to specific confirmed working free models
       const models = [
-        "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3.2-3b-instruct:free",
-        "microsoft/phi-3-mini-128k-instruct:free",
-        "qwen/qwen-2-7b-instruct:free"
+        "openrouter/free",                          // Smart free model router
+        "deepseek/deepseek-r1-distill-llama-70b:free", // DeepSeek R1 70B (confirmed working)
+        "deepseek/deepseek-r1-distill-qwen-14b:free",  // DeepSeek R1 14B
+        "deepseek/deepseek-r1-distill-qwen-7b:free"    // DeepSeek R1 7B
       ];
 
       let aiText = null;
@@ -157,7 +158,7 @@ export const addConversation = async (req, res) => {
 
         return res
           .status(503)
-          .json({ message: "All AI models failed." });
+          .json({ message: "All AI models failed. Please try again later." });
       }
 
       finalAnswer = aiText;
